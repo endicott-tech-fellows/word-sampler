@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+Created by Hank Feild (hfeild@endicott.edu) on 11-Nov-2020.
+ 
+Load this page in any browser to see instructions for using it.
+
+
+MIT License
+
+Copyright (c) 2020 endicott-tech-fellows
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<html>
+<head>
+<meta charset="UTF-8"> 
+<style>
+#input-area {
+    font-size: 20pt;
+}
+
+#input-area input, #input-area button {
+    font-size: 14pt;
+}
+</style>
+<script src="FileSaver.js"></script>
+<script>
+
+
+function process(){
+    // Read in text file.
+    var file = document.getElementById('input-file').files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e){
+        console.log(e);
+        var inputFileData = e.target.result;
+        var output = "";
+        var i;
+        var lastCharWasWhitespace = true;
+        var words = 0;
+        var sampleSize = parseInt(document.getElementById('num-words').value);
+
+        for(i = 0; i < inputFileData.length; i++){
+            var curChar = inputFileData[i];
+            if(curChar.match(/\s/) !== null){
+                lastCharWasWhitespace = false;
+            } else {
+                if(!lastCharWasWhitespace){
+                    words++;
+                    if(words >= sampleSize){
+                        break;
+                    }
+                }
+                lastCharWasWhitespace = true;
+            }
+            output += curChar;
+        }
+
+        saveAs(new Blob([output], {type: "text/plain;charset=utf-8"}), 
+            file.name.replace(/.txt$/i, `_${sampleSize}-sample.txt`));
+
+    };
+    reader.readAsText(file);
+}
+
+
+</script>
+</head>
+<body>
+<h1>Word Sampler</h1>
+<p>
+    Select the file you would like to extract a sample from and set the size of
+    the sample (words) to extract from the beginning of the text.
+</p>
+
+<p id="input-area">
+    Size of sample (words) <input type="numeric" id="num-words" name="num-words" 
+        value="3000"/><br/>
+    <input type="file" id="input-file" name="input_file" multiple /><br/>
+    <button id="process-btn" onclick="process();">Extract</button>
+</p>
+
+
+<h2>Input</h2> 
+<p>
+    The input file should be a plain text file.
+</p>
+
+<h2>Output</h2>
+<p>
+    The output of this process is a plain text file consisting of the first 
+    <em>n</em> words of the input text, where <em>n</em> is the size of the 
+    sample indicated above.
+</p>
+
+</body>
+</html>
